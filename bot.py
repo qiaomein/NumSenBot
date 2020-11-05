@@ -6,8 +6,6 @@ import datetime
 import game
 import asyncio
 
-
-
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
@@ -15,17 +13,18 @@ GUILD = os.getenv('DISCORD_GUILD')
 
 bot = commands.Bot(command_prefix='?')
 bot_channel = None #current bot vc
+timer_on = False
 
 @bot.command()
 async def ping(ctx):
   await ctx.send(bot.latency)
-  await ctx.send(bot.guilds)
+  #use of embed
   _embed = discord.Embed(name="Embed", description="Description of Embed")
   _embed.add_field(name="Hi", value="Bye")
   await ctx.send(embed=_embed)
 
 @bot.command()
-async def test(ctx,*args):
+async def test(ctx,*args): #bot returns user message as test function
     if len(args) == 0:
         await ctx.send("bruh")
     else:
@@ -45,50 +44,49 @@ async def random(ctx):
     if msg.content.lower() == f"{problem[1]}":
         await ctx.send("i guess u got it right")
     else:
-        await ctx.send("Wrong! Fucking dumbass ragamuffin! Bitch go die in a hole!")
+        await ctx.send(f"Wrong! Fucking dumbass ragamuffin! Bitch go die in a hole! Answer is {problem[1]}")
 
 @bot.command()
-async def start_timer(ctx, time='30', type='s'):
-    global bot_channel
+async def start_timer(ctx, time='30', type='s'): #timer with bot alarm
+    global bot_channel,timer_on
     await ctx.send(f'Timer started for {time} {type}')
     if type == 'm':
         time = int(time) * 60
     elif type == 'h':
         time = int(time) * 3600
-    await asyncio.sleep(int(time))
-    await ctx.send(f"Timer done.")
 
+    timer_on = True
 
+    if timer_on:
+        await asyncio.sleep(int(time))
+        await ctx.send(f"Timer done.")
 
-    channel = ctx.message.author.voice.channel
-    await ctx.send('User is in channel: ' + channel.name)
+        channel = ctx.message.author.voice.channel
+        await ctx.send('User is in channel: ' + channel.name)
+        # only play music if user is in a voice channel
+        try:
+            if channel is not None:
+                bot_channel = await channel.connect()
 
+                print(bot_channel)
+                await bot_channel.play(discord.FFmpegPCMAudio("alarm.mp3"))
 
-    # only play music if user is in a voice channel
-    if channel is not None:
-
-        bot_channel = await channel.connect()
-
-        # grab user's voice channel
-
-
-        # create StreamPlayer
-        print(bot_channel)
-        await bot_channel.play(discord.FFmpegPCMAudio("alarm.mp3"))
-
-        # asyncio.sleep()
-        # player = vc.create_ffmpeg_player('alarm.mp3', after=lambda: print('done'))
-        # player.start()
-        # while not player.is_done():
-        #     await asyncio.sleep(1)
-        # # disconnect after the player has finished
-        # player.stop()
-        # # await vc.disconnect()
-    else:
-        await ctx.send(':x: User is not in a channel.')
+            else:
+                await ctx.send(':x: User is not in a channel.')
+        except:
+            pass
+        timer_on = False
 
 @bot.command()
-async def join(ctx):
+async def stop_timer(ctx): #force bot to leave user's vc
+    global bot_channel, timer_on
+    if bot_channel is not None:
+        await bot_channel.disconnect()
+        bot_channel = None
+    timer_on = False
+
+@bot.command()
+async def join(ctx): #force bot to join user's vc
     global bot_channel
     channel = ctx.message.author.voice.channel
     if bot_channel is None:
@@ -101,7 +99,7 @@ async def join(ctx):
 
 
 @bot.command()
-async def leave(ctx):
+async def leave(ctx): #force bot to leave user's vc
     global bot_channel
     if bot_channel is not None:
         await bot_channel.disconnect()
