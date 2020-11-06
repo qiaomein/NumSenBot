@@ -5,12 +5,14 @@ from discord.ext import commands
 import datetime
 import game
 import asyncio
+import random
+
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 
-
+pg = game.ProblemGenerator()
 bot = commands.Bot(command_prefix='?')
 bot_channel = None #current bot vc
 timer_on = False
@@ -31,9 +33,9 @@ async def test(ctx,*args): #bot returns user message as test function
         await ctx.send(" ".join(args))
 
 @bot.command()
-async def random(ctx):
-    problem = game.problem()
-    await ctx.send(f"{problem[0]}=")
+async def random_problem(ctx):
+    question = random.choice([pg.square5,pg.random2x2,pg.random3x3])()
+    await ctx.send(f"{question.prompt}=")
 
     # This will make sure that the response will only be registered if the following
     # conditions are met:
@@ -41,10 +43,10 @@ async def random(ctx):
         return msg.author == ctx.author and msg.channel == ctx.channel
 
     msg = await bot.wait_for("message", check=check)
-    if msg.content.lower() == f"{problem[1]}":
+    if msg.content.lower() == f"{question.solution}":
         await ctx.send("i guess u got it right")
     else:
-        await ctx.send(f"Wrong! Fucking dumbass ragamuffin! Bitch go die in a hole! Answer is {problem[1]}")
+        await ctx.send(f"Wrong! Fucking dumbass ragamuffin! Bitch go die in a hole! Answer is {question.solution}")
 
 @bot.command()
 async def start_timer(ctx, time='30', type='s'): #timer with bot alarm
@@ -97,6 +99,14 @@ async def join(ctx): #force bot to join user's vc
 # @bot.command()
 # async def stop_alarm(ctx):
 
+@bot.command()
+async def nnn(ctx):
+    # guild = discord.utils.find(lambda g: g.name == GUILD, bot.guilds)
+    # members = '\n - '.join([member.name for member in guild.members])
+    # await ctx.send(f'{members}')
+    for guild in bot.guilds:
+        for member in guild.members:
+            await ctx.send(member)
 
 @bot.command()
 async def leave(ctx): #force bot to leave user's vc

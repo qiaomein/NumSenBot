@@ -10,12 +10,13 @@ def problem():
 
 class ProblemGenerator(object):
     #have methods that return Questions and creates questions
-
+    def __init__(self):
+        pass
     ### MULTIPLICATION PROBLEMS ###
 
     def random2x2(self):
         a = randint(11,100)
-        b =randint(11,100)
+        b = randint(11,100)
         s = a*b
         return Question([a,b],f"{a} * {b}",s)
 
