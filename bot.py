@@ -12,11 +12,12 @@ import urllib.parse
 from PIL import Image
 import io
 from settings import *
+import os
+
 
 intents = discord.Intents.default()
 intents.members = True
 
-pg_methods = ['random2x2','random3x3','square5']
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -48,11 +49,13 @@ async def test(ctx,*args): #bot returns user message as test function
 
 @bot.command()
 async def rns(ctx, type=None):
+
     if type == None:
-        question = random.choice([pg.square5,pg.random2x2,pg.random3x3])()
-        await ctx.send(f"{question.prompt}=")
+        random_method = random.choice(PG_METHODS)
+        question = random_method(pg)
+        await ctx.send(f"Type: {random_method.__name__}\n{question.prompt}=")
     else:
-        pg_methods_string = '\n-'.join(pg_methods)
+        pg_methods_string = '\n-'.join(list(func.__name__.strip('pg.') for func in PG_METHODS))
         try:
             question = getattr(pg,type)()
             await ctx.send(f"{question.prompt}=")
@@ -66,15 +69,16 @@ async def rns(ctx, type=None):
 
     msg = await bot.wait_for("message", check=check)
     try:
+        temp = int(msg.content.lower())
         if msg.content.lower() == f"{question.solution}":
             await ctx.send("when u get it right :100:")
         else:
             await ctx.send(f"Wrong! Fucking dumbass ragamuffin! Bitch go die in a hole! Answer is {question.solution}")
     except:
-        pass
+        await ctx.send(f"Enter a number you idiot! :100:")
 
 @bot.command()
-async def start_timer(ctx, time : int = 30, type='s'): #timer with bot alarm
+async def timer(ctx, time : int = 30, type='s'): #timer with bot alarm
     global bot_channel,start_time, user_time, timer_on
     if not timer_on:
         timer_on = True
@@ -104,7 +108,7 @@ async def start_timer(ctx, time : int = 30, type='s'): #timer with bot alarm
                     bot_channel = await channel.connect()
 
                     print(bot_channel,user_time)
-                    await bot_channel.play(discord.FFmpegPCMAudio("alarm.mp3"))
+                    await bot_channel.play(discord.FFmpegPCMAudio(os.path.join('sounds',"alarm.mp3")))
 
                 else:
                     await ctx.send(':x: User is not in a channel.')
@@ -116,7 +120,7 @@ async def start_timer(ctx, time : int = 30, type='s'): #timer with bot alarm
         await ctx.send(f':x: Timer already running.')
 
 @bot.command()
-async def stop_timer(ctx): #force bot to leave user's vc
+async def stop(ctx): #force bot to leave user's vc
     global bot_channel, timer_on
     if timer_on:
         timer_on = False
@@ -126,7 +130,7 @@ async def stop_timer(ctx): #force bot to leave user's vc
 
 
 @bot.command()
-async def time_left(ctx): #force bot to leave user's vc
+async def elapsed(ctx): #force bot to leave user's vc
     global start_time,user_time, timer_on
     if timer_on:
         formatted_time_left=round(int((user_time))-(currtime()-start_time),1)
@@ -210,7 +214,7 @@ async def generate_file(dpi, tex):
 
 @bot.command()
 async def latex(ctx, message):
-    # await bot.send_typing(ctx.channel)
+    await ctx.trigger_typing()
 
     dpi = 200
     tex = ''

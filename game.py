@@ -30,17 +30,33 @@ class ProblemGenerator(object):
         s = a**2
         return Question([a],f"{a} * {a}",s)
 
+    def near100(self):
+        a = randint(90,110)
+        b = randint(90,110)
+        return Question([a,b],f'{a} * {b}', a*b)
+
+    def reverses(self):
+        a = randint(12,100)
+        b = int(str(a)[::-1])
+        return Question([a,b],f'{a} * {b}', a*b)
+
+    def near50(self):
+        a = randint(41, 59)
+        b = randint(41,59)
+        return Question([a, b], f'{a} * {b}', a * b)
+
+
+
     ### FRACTION PROBLEMS ###
 
-
-
 class Question(object): #container for all variables of a question one at a time
-    def __init__(self,variables,prompt, solution, point_value=0, trick_desc='No description yet'):
+    def __init__(self,variables,prompt, solution, point_value=0, trick_desc='No description yet', type = ''):
         self.variables = variables
         self.prompt = prompt
         self.solution = solution
         self.point_value = point_value
         self.trick_desc = trick_desc
+        self.type = type
     #ex attributes: hint, prompt, solution, etc
 
 # def askQuestion(question): #handles using instances of Question

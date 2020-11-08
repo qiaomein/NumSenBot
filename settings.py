@@ -1,3 +1,7 @@
+from game import ProblemGenerator as pg
+
+PG_METHODS = [pg.square5,pg.random2x2,pg.random3x3, pg.near100, pg.reverses, pg.near50]
+
 house_of_rising_sun = """There is a house in New Orleans
 They call the Rising Sun
 And it's been the ruin of many a poor boy
