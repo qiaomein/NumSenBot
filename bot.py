@@ -49,7 +49,7 @@ async def test(ctx,*args): #bot returns user message as test function
 
 @bot.command()
 async def rns(ctx, type=None):
-
+    start = currtime()
     if type == None:
         random_method = random.choice(PG_METHODS)
         question = random_method(pg)
@@ -68,6 +68,8 @@ async def rns(ctx, type=None):
         return msg.author == ctx.author and msg.channel == ctx.channel
 
     msg = await bot.wait_for("message", check=check)
+    elapsed_time = round(currtime() - start,3)
+    await ctx.send(f"It only took you {elapsed_time} seconds brickhead!")
     try:
         temp = int(msg.content.lower())
         if msg.content.lower() == f"{question.solution}":
@@ -160,7 +162,18 @@ async def nnn(ctx):
 @commands.has_permissions(administrator=True)
 @bot.command()
 async def clear(ctx,amount = 1):
-    await ctx.channel.purge(limit = amount)
+    def check(msg):
+        return msg.author == ctx.author and msg.channel == ctx.channel and msg.content.lower() in ['y','n']
+    if amount > 1000:
+        await ctx.send(f'Are you sure you want to clear {amount} messages? [y/n]')
+        msg = await bot.wait_for("message",check = check)
+        if msg.content.lower() == 'y':
+            await ctx.channel.purge(limit=amount)
+        else:
+            await ctx.send('Clear command canceled.')
+    else:
+        await ctx.channel.purge(limit = amount)
+
 
 @bot.event
 async def on_ready():
