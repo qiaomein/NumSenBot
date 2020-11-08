@@ -22,13 +22,17 @@ class ProblemGenerator(object):
 
     def random3x3(self):
         a = randint(101, 1000)
-        b = randint(101, 1000)
+        b = randint(2,10)
         s = a * b
         return Question([a,b],f"{a} * {b}",s)
     def square5(self):
         a = randrange(15,225,10)
         s = a**2
         return Question([a],f"{a} * {a}",s)
+
+    ### FRACTION PROBLEMS ###
+
+
 
 class Question(object): #container for all variables of a question one at a time
     def __init__(self,variables,prompt, solution, point_value=0, trick_desc='No description yet'):
@@ -39,5 +43,5 @@ class Question(object): #container for all variables of a question one at a time
         self.trick_desc = trick_desc
     #ex attributes: hint, prompt, solution, etc
 
-def askQuestion(question): #handles using instances of Question
-    pass
+# def askQuestion(question): #handles using instances of Question
+#     pass
