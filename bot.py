@@ -29,6 +29,7 @@ bot_channel = None #current bot vc
 start_time = 0
 user_time = None
 timer_on = False
+rns_started = False
 
 #create a list of the queued timers?
 
@@ -41,6 +42,22 @@ async def ping(ctx):
   await ctx.send(embed=_embed)
 
 @bot.command()
+async def rojo(ctx, num: int):
+    global bot_channel
+
+    if ctx.message.author.voice.channel is not None:
+        channel = ctx.message.author.voice.channel
+        await ctx.send('User is in channel: ' + channel.name)
+        bot_channel = await channel.connect()
+        print(bot_channel)
+        await bot_channel.play(discord.FFmpegPCMAudio(ROJO_MUSIC[num-1]))
+        await bot_channel.disconnect()
+
+    else:
+        await ctx.send(':x: User is not in a channel.')
+
+
+@bot.command()
 async def test(ctx,*args): #bot returns user message as test function
     if len(args) == 0:
         await ctx.send('bruh')
@@ -48,36 +65,80 @@ async def test(ctx,*args): #bot returns user message as test function
         await ctx.send(" ".join(args))
 
 @bot.command()
-async def rns(ctx, type=None):
-    start = currtime()
-    if type == None:
-        random_method = random.choice(PG_METHODS)
-        question = random_method(pg)
-        await ctx.send(f"Type: {random_method.__name__}\n{question.prompt}=")
-    else:
-        pg_methods_string = '\n-'.join(list(func.__name__.strip('pg.') for func in PG_METHODS))
-        try:
-            question = getattr(pg,type)()
-            await ctx.send(f"{question.prompt}=")
-        except: await ctx.send(f":x: Problem type not recognized. Available problem types: \n-{pg_methods_string}")
+async def quit_rns(ctx):
+    global rns_started
+    if rns_started:
+        rns_started = False
 
-
-    # This will make sure that the response will only be registered if the following
-    # conditions are met:
-    def check(msg):
-        return msg.author == ctx.author and msg.channel == ctx.channel
-
-    msg = await bot.wait_for("message", check=check)
-    elapsed_time = round(currtime() - start,3)
-    await ctx.send(f"It only took you {elapsed_time} seconds brickhead!")
-    try:
-        temp = int(msg.content.lower())
-        if msg.content.lower() == f"{question.solution}":
-            await ctx.send("when u get it right :100:")
+@bot.command()
+async def start_rns(ctx, type = None):
+    global rns_started
+    rns_started = True
+    while rns_started:
+        start = currtime()
+        if type == None:
+            random_method = random.choice(PG_METHODS)
+            question = random_method(pg)
+            await ctx.send(f"Type: {random_method.__name__}\n{question.prompt}=")
         else:
-            await ctx.send(f"Wrong! Fucking dumbass ragamuffin! Bitch go die in a hole! Answer is {question.solution}")
-    except:
-        await ctx.send(f"Enter a number you idiot! :100:")
+            pg_methods_string = '\n-'.join(list(func.__name__.strip('pg.') for func in PG_METHODS))
+            try:
+                question = getattr(pg, type)()
+                await ctx.send(f"{question.prompt}=")
+            except:
+                await ctx.send(f":x: Problem type not recognized. Available problem types: \n-{pg_methods_string}")
+
+        # This will make sure that the response will only be registered if the following
+        # conditions are met:
+        def check(msg):
+            return msg.author == ctx.author and msg.channel == ctx.channel
+
+        msg = await bot.wait_for("message", check=check)
+        elapsed_time = round(currtime() - start, 3)
+        await ctx.send(f"It only took you {elapsed_time} seconds brickhead!")
+        try:
+            temp = int(msg.content.lower())
+            if msg.content.lower() == f"{question.solution}":
+                await ctx.send("when u get it right :100:")
+            else:
+                await ctx.send(
+                    f"Wrong! Fucking dumbass ragamuffin! Bitch go die in a hole! Answer is {question.solution}")
+        except:
+            await ctx.send(f"Enter a number you idiot! :100:")
+
+@bot.command()
+async def rns(ctx, type=None):
+    if not rns_started:
+        start = currtime()
+        if type == None:
+            random_method = random.choice(PG_METHODS)
+            question = random_method(pg)
+            await ctx.send(f"Type: {random_method.__name__}\n{question.prompt}=")
+        else:
+            pg_methods_string = '\n-'.join(list(func.__name__.strip('pg.') for func in PG_METHODS))
+            try:
+                question = getattr(pg,type)()
+                await ctx.send(f"{question.prompt}=")
+            except: await ctx.send(f":x: Problem type not recognized. Available problem types: \n-{pg_methods_string}")
+
+        # This will make sure that the response will only be registered if the following
+        # conditions are met:
+        def check(msg):
+            return msg.author == ctx.author and msg.channel == ctx.channel
+
+        msg = await bot.wait_for("message", check=check)
+        elapsed_time = round(currtime() - start,3)
+        await ctx.send(f"It only took you {elapsed_time} seconds brickhead!")
+        try:
+            temp = int(msg.content.lower())
+            if msg.content.lower() == f"{question.solution}":
+                await ctx.send("when u get it right :100:")
+            else:
+                await ctx.send(f"Wrong! Fucking dumbass ragamuffin! Bitch go die in a hole! Answer is {question.solution}")
+        except:
+            await ctx.send(f"Enter a number you idiot! :100:")
+    else:
+        await ctx.send(f":x: start_rns already running!")
 
 @bot.command()
 async def timer(ctx, time : int = 30, type='s'): #timer with bot alarm
@@ -195,15 +256,15 @@ async def on_ready():
 #     else:
 #         await ctx.send(':x: Already connected to a voice channel.')
 #
-# @bot.command()
-# async def leave(ctx): #force bot to leave user's vc
-#     global bot_channel, timer_on
-#     timer_on = False
-#     if bot_channel is not None:
-#         await bot_channel.disconnect()
-#         bot_channel = None
-#     else:
-#         await ctx.send(':x: Bot is not in a voice channel.')
+@bot.command()
+async def leave(ctx): #force bot to leave user's vc
+    global bot_channel, timer_on
+    timer_on = False
+    if bot_channel is not None:
+        await bot_channel.disconnect()
+        bot_channel = None
+    else:
+        await ctx.send(':x: Bot is not in a voice channel.')
 
 ###LATEX FORMATTING
 async def generate_file(dpi, tex):

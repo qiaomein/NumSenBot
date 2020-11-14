@@ -2,12 +2,6 @@
 import discord
 from random import *
 
-def problem():
-    a = randint(11,100)
-    b = randint(11,100)
-    s = a*b
-    return [f"{a} x {b}",s]
-
 class ProblemGenerator(object):
     #have methods that return Questions and creates questions
     def __init__(self):
@@ -40,14 +34,18 @@ class ProblemGenerator(object):
         b = int(str(a)[::-1])
         return Question([a,b],f'{a} * {b}', a*b)
 
-    def near50(self):
+    def square50(self):
         a = randint(41, 59)
-        b = randint(41,59)
-        return Question([a, b], f'{a} * {b}', a * b)
-
-
+        return Question([a], f'{a} * {a}', a ** 2)
 
     ### FRACTION PROBLEMS ###
+
+
+    ### MISC ###
+    def unitsdigit(self):
+        a = randint(8,45)
+        b = randint(10,50)
+        return Question([a,b], f'{a} ^ {b}', str(a**b)[-1])
 
 class Question(object): #container for all variables of a question one at a time
     def __init__(self,variables,prompt, solution, point_value=0, trick_desc='No description yet', type = ''):
@@ -58,6 +56,3 @@ class Question(object): #container for all variables of a question one at a time
         self.trick_desc = trick_desc
         self.type = type
     #ex attributes: hint, prompt, solution, etc
-
-# def askQuestion(question): #handles using instances of Question
-#     pass
