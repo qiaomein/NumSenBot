@@ -38,7 +38,7 @@ async def ping(ctx):
   await ctx.send(bot.latency)
   #use of embed
   _embed = discord.Embed(name="Embed", description="Description of Embed")
-  _embed.add_field(name="When the", value=house_of_rising_sun)
+  _embed.add_field(name=f"When the", value=house_of_rising_sun)
   await ctx.send(embed=_embed)
 
 @bot.command()
@@ -47,10 +47,10 @@ async def rojo(ctx, num: int):
 
     if ctx.message.author.voice.channel is not None:
         channel = ctx.message.author.voice.channel
-        await ctx.send('User is in channel: ' + channel.name)
+        await ctx.send(f'User {ctx.message.author.mention} is in channel: ' + channel.name)
         bot_channel = await channel.connect()
         print(bot_channel)
-        await bot_channel.play(discord.FFmpegPCMAudio(ROJO_MUSIC[num-1]))
+        await bot_channel.play(discord.FFmpegPCMAudio(ROJO_MUSIC[num-2]))
         await bot_channel.disconnect()
 
     else:
@@ -79,7 +79,10 @@ async def start_rns(ctx, type = None):
         if type == None:
             random_method = random.choice(PG_METHODS)
             question = random_method(pg)
-            await ctx.send(f"Type: {random_method.__name__}\n{question.prompt}=")
+            _embed = discord.Embed(name="Prompt", description=f"Type: {random_method.__name__}")
+            _embed.add_field(name=f"{question.prompt} = ", value="Answer in the next message.")
+            await ctx.send(embed=_embed)
+            # await ctx.send(f"Type: {random_method.__name__}\n{question.prompt}=")
         else:
             pg_methods_string = '\n-'.join(list(func.__name__.strip('pg.') for func in PG_METHODS))
             try:
@@ -113,7 +116,10 @@ async def rns(ctx, type=None):
         if type == None:
             random_method = random.choice(PG_METHODS)
             question = random_method(pg)
-            await ctx.send(f"Type: {random_method.__name__}\n{question.prompt}=")
+            _embed = discord.Embed(name="Prompt", description=f"Type: {random_method.__name__}")
+            _embed.add_field(name=f"{question.prompt} = ", value="Answer in the next message.")
+            await ctx.send(embed=_embed)
+            # await ctx.send(f"Type: {random_method.__name__}\n{question.prompt}=")
         else:
             pg_methods_string = '\n-'.join(list(func.__name__.strip('pg.') for func in PG_METHODS))
             try:
@@ -259,7 +265,6 @@ async def on_ready():
 @bot.command()
 async def leave(ctx): #force bot to leave user's vc
     global bot_channel, timer_on
-    timer_on = False
     if bot_channel is not None:
         await bot_channel.disconnect()
         bot_channel = None
