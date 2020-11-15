@@ -152,11 +152,18 @@ async def timer(ctx, time : int = 30, type='s'): #timer with bot alarm
     if not timer_on:
         timer_on = True
         try:
-            await ctx.send(f'Timer started for {time} {type}')
-            if type == 'm':
+
+            if type in ['m','min','minutes','minute']:
                 time = time * 60
-            elif type == 'h':
+                type = 'minutes'
+            elif type in ['h','hour','hours']:
                 time = time * 3600
+                type = 'hours'
+            else:
+                type = 'seconds'
+
+            await ctx.send(f'Timer started for {time} {type}')
+
             start_time = currtime()
             user_time = time
 
