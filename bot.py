@@ -153,6 +153,8 @@ async def timer(ctx, time : int = 30, type='s'): #timer with bot alarm
         timer_on = True
         try:
 
+            await ctx.send(f'Timer started for {time} {type}')
+
             if type in ['m','min','minutes','minute']:
                 time = time * 60
                 type = 'minutes'
@@ -162,7 +164,7 @@ async def timer(ctx, time : int = 30, type='s'): #timer with bot alarm
             else:
                 type = 'seconds'
 
-            await ctx.send(f'Timer started for {time} {type}')
+
 
             start_time = currtime()
             user_time = time
