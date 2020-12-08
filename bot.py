@@ -45,8 +45,11 @@ async def ping(ctx):
 @bot.command()
 async def rojo(ctx, num: int):
     global bot_channel
-    if bot_channel is not None and len(queue) < 2:
-        await bot_channel.disconnect()
+
+    if bot_channel is not None: # if bot in vc
+        if len(queue) < 2: await bot_channel.disconnect()
+        else: queue.append(num)
+
     if ctx.message.author.voice.channel is not None:
         channel = ctx.message.author.voice.channel
         await ctx.send(f'User {ctx.message.author.mention} is in channel: {channel.name}')
@@ -154,21 +157,24 @@ async def timer(ctx, time : int = 30, type='s'): #timer with bot alarm
         timer_on = True
         try:
 
-            await ctx.send(f'Timer started for {time} {type}')
-
             if type in ['m','min','minutes','minute']:
-                time = time * 60
+                user_time = time * 60
                 type = 'minutes'
+                if user_time == 60:
+                    type = 'minute'
             elif type in ['h','hour','hours']:
-                time = time * 3600
+                user_time = time * 3600
                 type = 'hours'
+                if user_time == 3600:
+                    type = 'hour'
             else:
                 type = 'seconds'
+                user_time = time
 
+            await ctx.send(f'Timer started for {time} {type}')
 
 
             start_time = currtime()
-            user_time = time
 
             while user_time - (currtime()-start_time) > 0:
                 await asyncio.sleep(0.001)
@@ -178,7 +184,7 @@ async def timer(ctx, time : int = 30, type='s'): #timer with bot alarm
                     return
 
             timer_on = False
-            await ctx.send(f"Timer done.")
+            await ctx.send(f"Timer done. {ctx.message.author.mention}")
 
             try:
                 channel = ctx.message.author.voice.channel
