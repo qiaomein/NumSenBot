@@ -30,6 +30,7 @@ start_time = 0
 user_time = None
 timer_on = False
 rns_started = False
+queue = []
 
 #create a list of the queued timers?
 
@@ -44,14 +45,14 @@ async def ping(ctx):
 @bot.command()
 async def rojo(ctx, num: int):
     global bot_channel
-
+    if bot_channel is not None and len(queue) < 2:
+        await bot_channel.disconnect()
     if ctx.message.author.voice.channel is not None:
         channel = ctx.message.author.voice.channel
-        await ctx.send(f'User {ctx.message.author.mention} is in channel: ' + channel.name)
+        await ctx.send(f'User {ctx.message.author.mention} is in channel: {channel.name}')
         bot_channel = await channel.connect()
         print(bot_channel)
         await bot_channel.play(discord.FFmpegPCMAudio(ROJO_MUSIC[num-2]))
-        await bot_channel.disconnect()
 
     else:
         await ctx.send(':x: User is not in a channel.')
