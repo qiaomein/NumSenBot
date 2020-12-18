@@ -24,7 +24,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 
 pg = game.ProblemGenerator()
-bot = commands.Bot(command_prefix='?', intents = intents)
+bot = commands.Bot(command_prefix='$', intents = intents)
 bot_channel = None #current bot vc
 start_time = 0
 user_time = None
@@ -45,20 +45,20 @@ async def ping(ctx):
 @bot.command()
 async def rojo(ctx, num: int):
     global bot_channel
+    while queue:
+        if bot_channel is not None: # if bot in vc
+            if len(queue) < 2: await bot_channel.disconnect()
+            else: queue.append(num)
 
-    if bot_channel is not None: # if bot in vc
-        if len(queue) < 2: await bot_channel.disconnect()
-        else: queue.append(num)
+        if ctx.message.author.voice.channel is not None:
+            channel = ctx.message.author.voice.channel
+            await ctx.send(f'User {ctx.message.author.mention} is in channel: {channel.name}')
+            bot_channel = await channel.connect()
+            print(bot_channel)
+            await bot_channel.play(discord.FFmpegPCMAudio(ROJO_MUSIC[num-2]))
 
-    if ctx.message.author.voice.channel is not None:
-        channel = ctx.message.author.voice.channel
-        await ctx.send(f'User {ctx.message.author.mention} is in channel: {channel.name}')
-        bot_channel = await channel.connect()
-        print(bot_channel)
-        await bot_channel.play(discord.FFmpegPCMAudio(ROJO_MUSIC[num-2]))
-
-    else:
-        await ctx.send(':x: User is not in a channel.')
+        else:
+            await ctx.send(':x: User is not in a channel.')
 
 
 @bot.command()
@@ -291,9 +291,9 @@ async def leave(ctx): #force bot to leave user's vc
 async def generate_file(dpi, tex):
     MARGIN = 20
     URL = 'https://latex.codecogs.com/gif.latex?{}'
-    TEMPLATE = '\\dpi{{{}}} \\bg_white {}'
+    query = f'\\dpi{{{dpi}}} \\bg_white {tex}'
     filename = '{}.png'.format(random.randint(1, 1000))
-    query = TEMPLATE.format(dpi, tex)
+    # query = TEMPLATE.format(dpi, tex)
     print(query)
     url = URL.format(urllib.parse.quote(query))
     bytes = urllib.request.urlopen(url).read()
@@ -303,7 +303,7 @@ async def generate_file(dpi, tex):
     new_img = Image.new("RGB", new_size, (255, 255, 255))
     new_img.paste(img, (int(MARGIN / 2), int(MARGIN / 2)))
     img_bytes = io.BytesIO()
-    new_img.save(img_bytes, 'PNG')
+    new_img.save(img_bytes, 'png')
     img_bytes.seek(0)
     return img_bytes
 
@@ -316,7 +316,8 @@ async def latex(ctx, message):
     print('{}: dpi={} tex={}'.format(ctx.author, dpi, tex))
     bytes = await generate_file(dpi, message)
     filename = '{}.png'.format(random.randint(1, 1000))
-    await ctx.send(file=bytes)
+    print(type(bytes))
+    await ctx.send(file=discord.File(bytes, filename = filename))
 
 
 bot.run(TOKEN)
