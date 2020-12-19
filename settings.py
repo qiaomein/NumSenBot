@@ -1,7 +1,7 @@
 from game import ProblemGenerator as pg
 import os
 
-PG_METHODS = [pg.square5,pg.random2x2,pg.random3x3, pg.near100, pg.reverses, pg.square50, pg.unitsdigit]
+PG_METHODS = [pg.square5,pg.random2x2,pg.random3x3, pg.near100, pg.reverses, pg.square50, pg.unitsdigit, pg.reciprocal]
 
 # ROJO_MUSIC = map(os.path.join,'sounds',[f'Rojo ({i}).mp3' for i in range(1,11)])
 ROJO_MUSIC = [os.path.join('sounds',f'Rojo ({i}).mp3') for i in range(1,11)]

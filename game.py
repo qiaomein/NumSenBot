@@ -1,5 +1,6 @@
 
 import discord
+from fractions import Fraction
 from random import *
 
 class ProblemGenerator(object):
@@ -40,12 +41,18 @@ class ProblemGenerator(object):
 
     ### FRACTION PROBLEMS ###
 
+    def reciprocal(self):
+        a1 = randint(2,10)
+        b1 = randint(2,10)
+        a = Fraction(a1, b1)
+        b = Fraction(b1, a1)
+        return Question([a],f'\\frac{{{a.numerator}}}{{{a.denominator}}} + \\frac{{{a.denominator}}}{{{a.numerator}}}', (a+b).limit_denominator(max_denominator=500))
 
     ### MISC ###
     def unitsdigit(self):
         a = randint(8,45)
         b = randint(10,50)
-        return Question([a,b], f'{a} ^ {b}', str(a**b)[-1])
+        return Question([a,b], f'{a} ^ {{{b}}}', str(a**b)[-1])
 
 class Question(object): #container for all variables of a question one at a time
     def __init__(self,variables,prompt, solution, point_value=0, trick_desc='No description yet', type = ''):

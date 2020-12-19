@@ -41,6 +41,7 @@ async def ping(ctx):
   _embed = discord.Embed(name="Embed", description="Description of Embed")
   _embed.add_field(name=f"When the", value=house_of_rising_sun)
   await ctx.send(embed=_embed)
+  await ctx.send(file= discord.File('test.gif'))
 
 @bot.command()
 async def rojo(ctx, num: int):
@@ -84,7 +85,9 @@ async def start_rns(ctx, type = None):
             random_method = random.choice(PG_METHODS)
             question = random_method(pg)
             _embed = discord.Embed(name="Prompt", description=f"Type: {random_method.__name__}")
-            _embed.add_field(name=f"{question.prompt} = ", value="Answer in the next message.")
+            _embed.add_field(name=f"{question.prompt} = ", value=f"Answer in the next message {ctx.message.author.mention}.")
+            await latex(ctx, question.prompt)
+
             await ctx.send(embed=_embed)
             # await ctx.send(f"Type: {random_method.__name__}\n{question.prompt}=")
         else:
@@ -104,7 +107,7 @@ async def start_rns(ctx, type = None):
         elapsed_time = round(currtime() - start, 3)
         await ctx.send(f"It only took you {elapsed_time} seconds brickhead!")
         try:
-            temp = int(msg.content.lower())
+            # temp = int(msg.content.lower())
             if msg.content.lower() == f"{question.solution}":
                 await ctx.send("when u get it right :100:")
             else:
@@ -121,13 +124,15 @@ async def rns(ctx, type=None):
             random_method = random.choice(PG_METHODS)
             question = random_method(pg)
             _embed = discord.Embed(name="Prompt", description=f"Type: {random_method.__name__}")
-            _embed.add_field(name=f"{question.prompt} = ", value="Answer in the next message.")
+            _embed.add_field(name=f"{question.prompt} = ", value=f"Answer in the next message {ctx.message.author.mention}.")
+            await latex(ctx, question.prompt)
             await ctx.send(embed=_embed)
             # await ctx.send(f"Type: {random_method.__name__}\n{question.prompt}=")
         else:
             pg_methods_string = '\n-'.join(list(func.__name__.strip('pg.') for func in PG_METHODS))
             try:
                 question = getattr(pg,type)()
+                await latex(ctx, question.prompt)
                 await ctx.send(f"{question.prompt}=")
             except: await ctx.send(f":x: Problem type not recognized. Available problem types: \n-{pg_methods_string}")
 
@@ -140,7 +145,7 @@ async def rns(ctx, type=None):
         elapsed_time = round(currtime() - start,3)
         await ctx.send(f"It only took you {elapsed_time} seconds brickhead!")
         try:
-            temp = int(msg.content.lower())
+            # temp = int(msg.content.lower())
             if msg.content.lower() == f"{question.solution}":
                 await ctx.send("when u get it right :100:")
             else:
@@ -308,15 +313,18 @@ async def generate_file(dpi, tex):
     return img_bytes
 
 @bot.command()
-async def latex(ctx, message):
+async def latex(ctx, *message):
     await ctx.trigger_typing()
 
     dpi = 200
     tex = ''
     print('{}: dpi={} tex={}'.format(ctx.author, dpi, tex))
-    bytes = await generate_file(dpi, message)
+    try: bytes = await generate_file(dpi, ''.join(message))
+    except:
+        await ctx.send(':x: Invalid syntax!')
+        return
     filename = '{}.png'.format(random.randint(1, 1000))
-    print(type(bytes))
+    # print(type(bytes))
     await ctx.send(file=discord.File(bytes, filename = filename))
 
 
