@@ -31,7 +31,7 @@ user_time = None
 timer_on = False
 rns_started = False
 queue = []
-
+jacklist = ['jack.JPG','jack2.JPG','jackJPG','jack4.JPG','jack5.JPG','jack6.JPG','jack7.JPG','jack8.PNG','jack9.JPG','jack10.JPG','jack11.JPG']
 #create a list of the queued timers?
 
 @bot.command()
@@ -44,22 +44,26 @@ async def ping(ctx):
   await ctx.send(file= discord.File('test.gif'))
 
 @bot.command()
+async def jacques(ctx):
+    await ctx.send(file = discord.File(random.choice(jacklist)))
+
+@bot.command()
 async def rojo(ctx, num: int):
     global bot_channel
-    while queue:
-        if bot_channel is not None: # if bot in vc
-            if len(queue) < 2: await bot_channel.disconnect()
-            else: queue.append(num)
+    #while queue:
+    if bot_channel is not None: # if bot in vc
+        if len(queue) < 2: await bot_channel.disconnect()
+        else: queue.append(num)
 
-        if ctx.message.author.voice.channel is not None:
-            channel = ctx.message.author.voice.channel
-            await ctx.send(f'User {ctx.message.author.mention} is in channel: {channel.name}')
-            bot_channel = await channel.connect()
-            print(bot_channel)
-            await bot_channel.play(discord.FFmpegPCMAudio(ROJO_MUSIC[num-2]))
+    if ctx.message.author.voice.channel is not None:
+        channel = ctx.message.author.voice.channel
+        await ctx.send(f'User {ctx.message.author.mention} is in channel: {channel.name}')
+        bot_channel = await channel.connect()
+        print(bot_channel)
+        await bot_channel.play(discord.FFmpegPCMAudio(ROJO_MUSIC[num-2]))
 
-        else:
-            await ctx.send(':x: User is not in a channel.')
+    else:
+        await ctx.send(':x: User is not in a channel.')
 
 
 @bot.command()
@@ -68,6 +72,7 @@ async def test(ctx,*args): #bot returns user message as test function
         await ctx.send('bruh')
     else:
         await ctx.send(" ".join(args))
+    await ctx.send(file= discord.File(random.choice(['clowntoine.png','twon.png','youremad.png','tf.jpg','tf2.jpg','tf3.jpg','tf4.jpg'])))
 
 @bot.command()
 async def quit_rns(ctx):
@@ -112,9 +117,9 @@ async def start_rns(ctx, type = None):
                 await ctx.send("when u get it right :100:")
             else:
                 await ctx.send(
-                    f"Wrong! Fucking dumbass ragamuffin! Bitch go die in a hole! Answer is {question.solution}")
+                    f"Wrong! You ragamuffin! Be better next time smh! Answer is {question.solution}")
         except:
-            await ctx.send(f"Enter a number you idiot! :100:")
+            await ctx.send(f"Enter a number you buffoon! :100:")
 
 @bot.command()
 async def rns(ctx, type=None):
@@ -149,9 +154,9 @@ async def rns(ctx, type=None):
             if msg.content.lower() == f"{question.solution}":
                 await ctx.send("when u get it right :100:")
             else:
-                await ctx.send(f"Wrong! Fucking dumbass ragamuffin! Bitch go die in a hole! Answer is {question.solution}")
+                await ctx.send(f"Wrong! You ragamuffin! Be better next time smh! Answer is {question.solution}")
         except:
-            await ctx.send(f"Enter a number you idiot! :100:")
+            await ctx.send(f"Enter a number you buffoon! :100:")
     else:
         await ctx.send(f":x: start_rns already running!")
 
@@ -235,7 +240,10 @@ async def elapsed(ctx): #force bot to leave user's vc
         await ctx.send(f'{formatted_time_left} {unit} left.')
     else: await ctx.send(f':x: No timer running.')
 
-
+@bot.command()
+async def michelle(ctx):
+    await ctx.send('7 > 5')
+    await ctx.send(file=discord.File('youremad.png'))
 
 @bot.command()
 async def nnn(ctx):
@@ -247,7 +255,7 @@ async def nnn(ctx):
     #         await ctx.send(member)
 
 
-@commands.has_permissions(administrator=True)
+#@commands.has_permissions(administrator=True)
 @bot.command()
 async def clear(ctx,amount = 1):
     def check(msg):
@@ -263,6 +271,7 @@ async def clear(ctx,amount = 1):
         await ctx.channel.purge(limit = amount)
 
 
+    
 @bot.event
 async def on_ready():
     guild = discord.utils.find(lambda g: g.name == GUILD, bot.guilds)
